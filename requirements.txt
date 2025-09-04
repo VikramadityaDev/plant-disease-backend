@@ -4,5 +4,4 @@ tflite-runtime
 pillow
 python-multipart
 gdown
-numpy
-
+numpy<2.0
