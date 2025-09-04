@@ -2,9 +2,9 @@
 # ===================================
 # Author   : Vikramaditya
 # Course   : Minor Project
-# Version  : 1.0
+# Version  : 2.0 (TFLite version for Koyeb)
 # Date     : September 2025
-# Framework: FastAPI + TensorFlow
+# Framework: FastAPI + TensorFlow Lite Runtime
 # ===================================
 
 import os
@@ -41,9 +41,13 @@ if not os.path.exists(MODEL_PATH):
     gdown.download(URL, MODEL_PATH, quiet=False)
 
 # ----------------------
-# Load model from here
+# Load TFLite model
 # ----------------------
-model = tf.keras.models.load_model(MODEL_PATH)
+interpreter = tflite.Interpreter(model_path=MODEL_PATH)
+interpreter.allocate_tensors()
+
+input_details = interpreter.get_input_details()
+output_details = interpreter.get_output_details()
 
 # --------------------
 # Load class indices
@@ -102,7 +106,7 @@ TREATMENTS = {
 def preprocess(image: Image.Image):
     image = image.resize((224, 224))
     img_array = np.array(image) / 255.0
-    return np.expand_dims(img_array, axis=0)
+    return np.expand_dims(img_array.astype(np.float32), axis=0)
 
 # ------------------
 # Predict endpoint
@@ -111,7 +115,11 @@ def preprocess(image: Image.Image):
 async def predict(file: UploadFile = File(...)):
     image = Image.open(file.file).convert("RGB")
     processed = preprocess(image)
-    predictions = model.predict(processed)
+
+    # Run inference with TFLite
+    interpreter.set_tensor(input_details[0]['index'], processed)
+    interpreter.invoke()
+    predictions = interpreter.get_tensor(output_details[0]['index'])
 
     idx = int(np.argmax(predictions))
     confidence = float(np.max(predictions))
@@ -124,5 +132,3 @@ async def predict(file: UploadFile = File(...)):
         "confidence": confidence,
         "treatment": treatment
     }
-
-
