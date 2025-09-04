@@ -9,7 +9,7 @@
 
 import os
 import gdown
-import tensorflow as tf
+import tflite_runtime.interpreter as tflite
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image
@@ -124,4 +124,5 @@ async def predict(file: UploadFile = File(...)):
         "confidence": confidence,
         "treatment": treatment
     }
+
 
