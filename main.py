@@ -32,8 +32,8 @@ app.add_middleware(
 # ------------------------------
 # Download model if not exists
 # ------------------------------
-MODEL_PATH = "plant_disease_prediction_model.h5"
-FILE_ID = "1kp5wfpdZ787eflIpb9CAwF1m0G2ZFlTS"
+MODEL_PATH = "plant_disease_fp32.tflite"
+FILE_ID = "19zVWgNJisJyeNWrmKvPAYN_-2dmI5p5B"
 URL = f"https://drive.google.com/uc?id={FILE_ID}"
 
 if not os.path.exists(MODEL_PATH):
@@ -124,3 +124,4 @@ async def predict(file: UploadFile = File(...)):
         "confidence": confidence,
         "treatment": treatment
     }
+
