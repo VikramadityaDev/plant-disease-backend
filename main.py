@@ -125,6 +125,13 @@ async def predict(file: UploadFile = File(...)):
     confidence = float(np.max(predictions))
     disease = class_names[idx]
 
+    if confidence < 0.80:
+        return {
+            "disease": "Uncertain",
+            "confidence": confidence,
+            "treatment": "The system is not confident enough. Please upload a clearer image or consult an expert."
+        }
+
     treatment = TREATMENTS.get(disease, "No treatment information available.")
 
     return {
@@ -132,3 +139,4 @@ async def predict(file: UploadFile = File(...)):
         "confidence": confidence,
         "treatment": treatment
     }
+
